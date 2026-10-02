@@ -1,0 +1,42 @@
+/* Estilos personalizados para PSP - Matriz de Tiempos */
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Estilos de barra de desplazamiento personalizada (modo oscuro) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* Animaciones y transiciones de modales */
+.modal-backdrop {
+    transition: opacity 0.25s ease-in-out;
+}
+
+.modal-content {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-in-out;
+}
+
+/* Suavizado de botones y tarjetas */
+button {
+    transition: all 0.2s ease-in-out;
+}
+
+button:active {
+    transform: scale(0.98);
+}

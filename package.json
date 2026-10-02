@@ -1,0 +1,20 @@
+{
+  "name": "matriz-tiempos-psp",
+  "version": "1.0.0",
+  "description": "Herramienta web para el registro y control de tiempos por fases PSP con cronómetro y exportación a Excel.",
+  "main": "js/app.js",
+  "scripts": {
+    "start": "npx -y serve . -l 3000",
+    "dev": "npx -y serve . -l 3000",
+    "test": "node -e \"console.log('Validando sintaxis JS...'); const fs = require('fs'); ['js/calculator.js', 'js/storage.js', 'js/timer.js', 'js/ui.js', 'js/export.js', 'js/app.js'].forEach(f => new Function(fs.readFileSync(f, 'utf8'))); console.log('¡Sintaxis de archivos JS correcta!');\""
+  },
+  "keywords": [
+    "psp",
+    "personal-software-process",
+    "matriz-de-tiempos",
+    "cronometro",
+    "excel"
+  ],
+  "author": "",
+  "license": "MIT"
+}
