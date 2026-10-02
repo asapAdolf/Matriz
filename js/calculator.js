@@ -27,6 +27,22 @@ window.PSPCalculator = (function () {
     }
 
     /**
+     * Formatea minutos a una cadena amigable "X h Y min" o "Y min"
+     * @param {number} totalMinutes 
+     * @returns {string}
+     */
+    function formatMinutes(totalMinutes) {
+        const mins = Math.max(0, parseInt(totalMinutes, 10) || 0);
+        const hours = Math.floor(mins / 60);
+        const remainingMins = mins % 60;
+
+        if (hours === 0) {
+            return `${remainingMins} min`;
+        }
+        return `${hours} h ${remainingMins} min`;
+    }
+
+    /**
      * Calcula la diferencia neta de tiempo en minutos (Delta)
      * descontando el tiempo de interrupción y contemplando cambio de medianoche.
      * @param {string} startTime - Formato "HH:MM"
@@ -54,9 +70,61 @@ window.PSPCalculator = (function () {
         return delta < 0 ? 0 : delta;
     }
 
+    /**
+     * Genera un resumen estadístico completo de todos los registros
+     * @param {Array<Object>} logs 
+     * @returns {Object}
+     */
+    function calculateSummary(logs = []) {
+        let totalDelta = 0;
+        let totalInterruptions = 0;
+        const phaseMap = {};
+
+        logs.forEach(log => {
+            const delta = parseInt(log.delta, 10) || 0;
+            const interruptions = parseInt(log.interruptions, 10) || 0;
+            const phase = log.phase || 'Sin fase';
+
+            totalDelta += delta;
+            totalInterruptions += interruptions;
+
+            if (!phaseMap[phase]) {
+                phaseMap[phase] = {
+                    phase,
+                    minutes: 0,
+                    count: 0
+                };
+            }
+            phaseMap[phase].minutes += delta;
+            phaseMap[phase].count += 1;
+        });
+
+        const totalGross = totalDelta + totalInterruptions;
+
+        // Calcular porcentaje por fase
+        const byPhase = Object.values(phaseMap).map(item => ({
+            ...item,
+            percentage: totalDelta > 0 ? Math.round((item.minutes / totalDelta) * 100) : 0
+        })).sort((a, b) => b.minutes - a.minutes);
+
+        return {
+            totalLogs: logs.length,
+            totalDelta,
+            totalInterruptions,
+            totalGross,
+            totalDeltaFormatted: formatMinutes(totalDelta),
+            totalInterruptionsFormatted: formatMinutes(totalInterruptions),
+            totalGrossFormatted: formatMinutes(totalGross),
+            byPhase,
+            activePhasesCount: byPhase.length
+        };
+    }
+
     return {
         formatTimeDisplay,
         getHHMM,
-        calculateDelta
+        formatMinutes,
+        calculateDelta,
+        calculateSummary
     };
 })();

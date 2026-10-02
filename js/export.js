@@ -35,6 +35,24 @@ window.PSPExport = (function () {
                 'Comentarios': log.comments || ''
             }));
 
+            // Calcular totales para la fila de resumen final en Excel
+            const totalInterruptions = logs.reduce((sum, log) => sum + (parseInt(log.interruptions, 10) || 0), 0);
+            const totalDelta = logs.reduce((sum, log) => sum + (parseInt(log.delta, 10) || 0), 0);
+            const formattedTotal = typeof window.PSPCalculator !== 'undefined'
+                ? window.PSPCalculator.formatMinutes(totalDelta)
+                : `${totalDelta} min`;
+
+            // Fila de resumen de totales en Excel
+            excelData.push({
+                'Fecha': 'TOTALES',
+                'Fase': `${logs.length} registros`,
+                'Hora Inicio': '',
+                'Hora Fin': '',
+                'Tiempo Interrupción (min)': totalInterruptions,
+                'Tiempo Delta (min)': totalDelta,
+                'Comentarios': `Tiempo total neto: ${formattedTotal}`
+            });
+
             // Crear libro de trabajo y hoja
             const worksheet = XLSX.utils.json_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();

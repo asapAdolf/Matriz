@@ -11,7 +11,15 @@ window.PSPUI = (function () {
     let chronoDisplay, chronoStatus, btnStartPause, btnStop, chronoInterruptions, chronoIntTime;
 
     // Referencias de Tabla
-    let dataTableBody, emptyState;
+    let dataTableBody, emptyState, dataTableFoot;
+    let footTotalInterruptions, footTotalDelta, footSummaryText;
+
+    // Referencias de Resumen
+    let summaryTotalDelta, summaryTotalDeltaFormatted;
+    let summaryTotalInterruptions, summaryTotalInterruptionsFormatted;
+    let summaryTotalGross, summaryTotalGrossFormatted;
+    let summaryTotalLogs, summaryTotalPhases;
+    let phaseBreakdownContainer, phaseBreakdownList, phaseBreakdownCount;
 
     /**
      * Inicializa las referencias de elementos del DOM
@@ -37,6 +45,22 @@ window.PSPUI = (function () {
 
         dataTableBody = document.getElementById('dataTableBody');
         emptyState = document.getElementById('emptyState');
+        dataTableFoot = document.getElementById('dataTableFoot');
+        footTotalInterruptions = document.getElementById('footTotalInterruptions');
+        footTotalDelta = document.getElementById('footTotalDelta');
+        footSummaryText = document.getElementById('footSummaryText');
+
+        summaryTotalDelta = document.getElementById('summaryTotalDelta');
+        summaryTotalDeltaFormatted = document.getElementById('summaryTotalDeltaFormatted');
+        summaryTotalInterruptions = document.getElementById('summaryTotalInterruptions');
+        summaryTotalInterruptionsFormatted = document.getElementById('summaryTotalInterruptionsFormatted');
+        summaryTotalGross = document.getElementById('summaryTotalGross');
+        summaryTotalGrossFormatted = document.getElementById('summaryTotalGrossFormatted');
+        summaryTotalLogs = document.getElementById('summaryTotalLogs');
+        summaryTotalPhases = document.getElementById('summaryTotalPhases');
+        phaseBreakdownContainer = document.getElementById('phaseBreakdownContainer');
+        phaseBreakdownList = document.getElementById('phaseBreakdownList');
+        phaseBreakdownCount = document.getElementById('phaseBreakdownCount');
 
         // Eventos de modales
         if (confirmCancel) {
@@ -126,6 +150,62 @@ window.PSPUI = (function () {
     }
 
     /**
+     * Actualiza el panel de resumen de tiempos totales y distribución de fases
+     * @param {Object} summary 
+     */
+    function renderSummary(summary) {
+        if (!summary) return;
+
+        if (summaryTotalDelta) summaryTotalDelta.textContent = `${summary.totalDelta} min`;
+        if (summaryTotalDeltaFormatted) summaryTotalDeltaFormatted.textContent = summary.totalDeltaFormatted;
+
+        if (summaryTotalInterruptions) summaryTotalInterruptions.textContent = `${summary.totalInterruptions} min`;
+        if (summaryTotalInterruptionsFormatted) summaryTotalInterruptionsFormatted.textContent = summary.totalInterruptionsFormatted;
+
+        if (summaryTotalGross) summaryTotalGross.textContent = `${summary.totalGross} min`;
+        if (summaryTotalGrossFormatted) summaryTotalGrossFormatted.textContent = summary.totalGrossFormatted;
+
+        if (summaryTotalLogs) summaryTotalLogs.textContent = summary.totalLogs;
+        if (summaryTotalPhases) {
+            const count = summary.activePhasesCount;
+            summaryTotalPhases.textContent = `${count} ${count === 1 ? 'fase activa' : 'fases activas'}`;
+        }
+
+        // Desglose de fases
+        if (phaseBreakdownContainer && phaseBreakdownList) {
+            if (summary.byPhase && summary.byPhase.length > 0) {
+                phaseBreakdownContainer.classList.remove('hidden');
+                if (phaseBreakdownCount) {
+                    phaseBreakdownCount.textContent = `${summary.byPhase.length} fases registradas`;
+                }
+                phaseBreakdownList.innerHTML = summary.byPhase.map(item => `
+                    <div class="flex items-center gap-2 bg-gray-700/60 border border-gray-600/70 rounded-lg px-3 py-1.5 text-xs text-gray-200">
+                        <span class="font-medium text-white">${item.phase}</span>
+                        <span class="text-blue-400 font-bold">${item.minutes} min</span>
+                        <span class="text-gray-400">(${item.percentage}%)</span>
+                        <span class="text-gray-500 text-[10px]">• ${item.count} ${item.count === 1 ? 'reg.' : 'regs.'}</span>
+                    </div>
+                `).join('');
+            } else {
+                phaseBreakdownContainer.classList.add('hidden');
+                phaseBreakdownList.innerHTML = '';
+            }
+        }
+
+        // Pie de tabla con totales
+        if (dataTableFoot) {
+            if (summary.totalLogs > 0) {
+                dataTableFoot.classList.remove('hidden');
+                if (footTotalInterruptions) footTotalInterruptions.textContent = `${summary.totalInterruptions} min`;
+                if (footTotalDelta) footTotalDelta.textContent = `${summary.totalDelta} min`;
+                if (footSummaryText) footSummaryText.textContent = `Total neto: ${summary.totalDeltaFormatted}`;
+            } else {
+                dataTableFoot.classList.add('hidden');
+            }
+        }
+    }
+
+    /**
      * Renderiza la tabla de registros
      * @param {Array<Object>} logs 
      * @param {Function} onDelete 
@@ -136,6 +216,7 @@ window.PSPUI = (function () {
 
         if (!logs || logs.length === 0) {
             if (emptyState) emptyState.classList.remove('hidden');
+            if (dataTableFoot) dataTableFoot.classList.add('hidden');
             return;
         }
 
@@ -185,6 +266,7 @@ window.PSPUI = (function () {
         updateChronoStatus,
         updateChronoButtons,
         updateInterruptionsBadge,
+        renderSummary,
         renderTable
     };
 })();

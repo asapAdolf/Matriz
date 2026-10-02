@@ -27,11 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Refresca la vista de la tabla con los registros de almacenamiento
+     * Refresca la vista de la tabla y el resumen de métricas con los registros de almacenamiento
      */
     function refreshTable() {
         const logs = PSPStorage.getAll();
         PSPUI.renderTable(logs, handleDeleteItem);
+        const summary = PSPCalculator.calculateSummary(logs);
+        PSPUI.renderSummary(summary);
     }
 
     /**
@@ -208,6 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Renderizado inicial de la tabla
+    // Renderizado inicial de la tabla y resumen
     refreshTable();
 });
